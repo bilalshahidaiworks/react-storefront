@@ -4,7 +4,7 @@ on:
   push:
     branches: ["main"]
 jobs:
-  build_and_test:
+  install_modules:
     runs-on: ubuntu-latest
     env:
       TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
@@ -34,23 +34,96 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install
+    
+  build:
+    runs-on: ubuntu-latest
+    env:
+      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+      TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 7.5.2 # version used by Vercel
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "16"
+          cache: "pnpm"
 
       - name: Build
         run: pnpm run build
-
-      - name: Validate paths
-        env:
-          SALEOR_API_URL: https://master.staging.saleor.cloud/graphql/
-        run: |
-          pnpm --filter=storefront paths
-          pnpm prettier --write ./apps/storefront/lib/\$path.ts
-          git diff --exit-code ./apps/storefront/lib/\$path.ts
 
       - name: Check linters
         run: pnpm run lint
 
       - name: Check TypeScript
         run: pnpm run check-types
+
+  lint:
+    runs-on: ubuntu-latest
+    env:
+      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+      TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 7.5.2 # version used by Vercel
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "16"
+          cache: "pnpm"
+
+      - name: Check linters
+        run: pnpm run lint
+
+      - name: Check TypeScript
+        run: pnpm run check-types
+    
+  typescript-check:
+    runs-on: ubuntu-latest
+    env:
+      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+      TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 7.5.2 # version used by Vercel
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "16"
+          cache: "pnpm"
+
+      - name: Check TypeScript
+        run: pnpm run check-types
+    
+  testing:
+    runs-on: ubuntu-latest
+    env:
+      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+      TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 7.5.2 # version used by Vercel
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "16"
+          cache: "pnpm"
 
       - name: Run tests
         env:
