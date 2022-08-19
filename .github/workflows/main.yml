@@ -3,27 +3,8 @@ on:
   # Triggers the workflow on push or pull request events but only for the "develop" branch
   push:
     branches: ["main"]
-jobs:
-  install_modules:
-    runs-on: ubuntu-latest
-    
-    steps:
-      - uses: actions/checkout@v3
-
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 7.5.2 # version used by Vercel
-
-      - uses: actions/setup-node@v3
-        with:
-          node-version: "16"
-          cache: "pnpm"
-
-      - name: Install dependencies
-        run: pnpm install
-    
+jobs:    
   build:
-    needs: install_modules
     runs-on: ubuntu-latest
     env:
       TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
@@ -41,6 +22,9 @@ jobs:
           node-version: "16"
           cache: "pnpm"
           
+      - name: Install dependencies
+        run: pnpm install
+        
       # @todo: cache this on Vercel https://turborepo.org/docs/ci/github-actions
       - name: Turbo Cache
         id: turbo-cache
