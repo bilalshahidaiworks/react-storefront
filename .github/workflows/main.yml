@@ -1,5 +1,8 @@
-name: QA
-on: [pull_request]
+name: Storfront CI/CD
+on:
+  # Triggers the workflow on push or pull request events but only for the "develop" branch
+  push:
+    branches: ["main"]
 jobs:
   build_and_test:
     runs-on: ubuntu-latest
