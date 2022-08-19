@@ -1,4 +1,4 @@
-name: Storfront CI/CD
+name: QA
 on: [push]
 
 jobs:    
