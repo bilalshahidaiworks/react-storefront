@@ -34,4 +34,4 @@ jobs:
 
       # Docker build
       - name: Docker build
-        run: docker build -t storefront .
+        run: docker build -t storefront ././
