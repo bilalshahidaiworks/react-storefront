@@ -42,6 +42,6 @@ jobs:
       # Docker build
       - name: Docker build
         run: |
-          docker build . --file Dockerfile -t storefront
+          docker build . --file Dockerfile -t ghcr.io/bilalshahidaiworks/storefront:latest
           docker run ghcr.io/bilalshahidaiworks/storefront:latest
           docker push ghcr.io/bilalshahidaiworks/storefront:latest
