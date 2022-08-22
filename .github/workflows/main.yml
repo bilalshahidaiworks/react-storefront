@@ -26,6 +26,13 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - name: Checkout Repository
         uses: actions/checkout@v3
+        
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.ACCOUNT_TOKEN }}
 
       - name: setup node
         uses: actions/setup-node@master
@@ -34,4 +41,7 @@ jobs:
 
       # Docker build
       - name: Docker build
-        run: docker build . --file Dockerfile -t storefront
+        run: |
+          docker build . --file Dockerfile -t storefront
+          docker run ghcr.io/bilalshahidaiworks/storefront:latest
+          docker push ghcr.io/bilalshahidaiworks/storefront:latest
