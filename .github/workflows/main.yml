@@ -35,4 +35,4 @@ jobs:
           docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
           
       - name: Build and push
-        run: docker push ${{secrets.DOCKER_USER}}/storefront
+        run: docker push ${{secrets.DOCKER_USER}}/storefront:${{github.run_number}}
