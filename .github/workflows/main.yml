@@ -36,5 +36,5 @@ jobs:
           
       - name: Build and push
         run: |
-          docker build . -t ${{secrets.DOCKER_USER}}/storefront
-          docker push ${{secrets.DOCKER_USER}}/storefront
+          docker build . -t ${{secrets.DOCKER_USER}}/storefront:${{github.run_number}}
+          docker push ${{secrets.DOCKER_USER}}/storefront:${{github.run_number}}
