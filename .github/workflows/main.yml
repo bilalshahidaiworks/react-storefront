@@ -26,14 +26,14 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - name: Checkout Repository
         uses: actions/checkout@v3
-        
+
       - name: Login to DockerHub
         env:
           DOCKER_USER: ${{ secrets.DOCKER_USER }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
         run: |
           docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
-          
+
       - name: Build and push
         run: |
           docker build . -t ${{secrets.DOCKER_USER}}/storefront
@@ -42,26 +42,20 @@ jobs:
   Deploy:
     needs: build
     runs-on: ubuntu-latest
-    
+
     steps:
-      - uses: actions/checkout@v2 
+      - uses: actions/checkout@v2
       - name: Deploy in EC2
         env:
-            PRIVATE_KEY: ${{ secrets.AWS_PRIVATE_KEY  }}
-            HOSTNAME : ${{ secrets.HOSTNAME  }}
-            USER_NAME : ${{ secrets.USER_NAME  }}
-            
+          PRIVATE_KEY: ${{ secrets.AWS_PRIVATE_KEY  }}
+          HOSTNAME: ${{ secrets.HOSTNAME  }}
+          USER_NAME: ${{ secrets.USER_NAME  }}
+
         run: |
           echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
           ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} '
-          
+
             #Now we have got the access of EC2 and we will start the deploy .
             sudo docker pull ${{secrets.DOCKER_USER}}/storefront
-            sudo docker run ${{secrets.DOCKER_USER}}/storefront
-            #cd /home/ec2-user/counter-app &&
-            #git checkout main &&
-            #git fetch --all &&
-            #git reset --hard origin/main &&
-            #git pull origin main &&
-            #docker-compose -f docker-compose.prod.yml up -d --build 
-          '  
+            sudo docker run -p 3000:3000 -d ${{secrets.DOCKER_USER}}/storefront
+          '
