@@ -1,0 +1,94 @@
+name: Code Analysis
+on:
+  push:
+    # only trigger on branches, not on tags
+    branches: "feature/*"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+      TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - run: |
+          for commit in $(git rev-list ${{ github.base_ref }}..${{ github.head_ref }}); do
+              git checkout $commit
+              echo "run test"
+          done
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 7.5.2 # version used by Vercel
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "16"
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile
+
+      # @todo: cache this on Vercel https://turborepo.org/docs/ci/github-actions
+      - name: Turbo Cache
+        id: turbo-cache
+        uses: actions/cache@v2
+        with:
+          path: .turbo
+          key: turbo-${{ github.job }}-${{ github.ref_name }}-${{ github.sha }}
+          restore-keys: |
+            turbo-${{ github.job }}-${{ github.ref_name }}-
+
+      - name: Build
+        run: pnpm run build
+
+  lint:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 7.5.2 # version used by Vercel
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "16"
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Check linters
+        run: pnpm run lint
+
+  testing:
+    needs: lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 7.5.2 # version used by Vercel
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "16"
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile
+
+      # - name: Run tests
+      #   env:
+      #     TEST_MOLLIE_KEY: ${{ secrets.TEST_MOLLIE_KEY }}
+      #     TEST_MOLLIE_PROFILE_ID: ${{ secrets.TEST_MOLLIE_PROFILE_ID }}
+      #     SETTINGS_ENCRYPTION_SECRET: "testng"
+      #   run: pnpm run test
